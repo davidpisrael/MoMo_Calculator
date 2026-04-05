@@ -60,7 +60,8 @@ fun InternalStateInput(){
 TextField (
     value = amount,
     onValueChange = {amount = it},
-    label = {Text(stringResource(R.string.enter_amount))},
+    label = {
+        Text(stringResource(R.string.enter_amount))},
 
 )
 
@@ -97,11 +98,45 @@ fun HoistedAmountInput(
 
 }
 
+@Composable
+fun MoMoCalcScreen() {
+    var amountInput by remember { mutableStateOf("") }
 
+    val numericAmount = amountInput.toDoubleOrNull()
+    val isError = amountInput.isNotEmpty() && numericAmount == null
+    val fee = (numericAmount ?: 0.0) * 0.03
+    val formattedFee = "UGX %,.0f".format(fee)
 
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text(
+            text = stringResource(R.string.app_title),
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Spacer(modifier = Modifier.height(16.dp))
 
+        HoistedAmountInput(
+            amount = amountInput,
+            onAmountChange = { amountInput = it },
+            isError = isError
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = stringResource(R.string.fee_label, formattedFee),
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
+}
 
 @Preview(showBackground = true)
+@Composable
+fun MoMoCalcPreview() {
+    MaterialTheme { MoMoCalcScreen() }
+}
+
+
+
+/*@Preview(showBackground = true)
 @Composable
 fun MoMoCalcPreview (){
     MaterialTheme() {
@@ -144,3 +179,4 @@ fun PreviewError (){
     HoistedAmountInput(amount = "abc", onAmountChange = {}, isError = true)
 
 }
+*/
