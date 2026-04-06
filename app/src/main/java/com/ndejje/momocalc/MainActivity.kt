@@ -1,19 +1,24 @@
 package com.ndejje.momocalc
 
+import DarkColorScheme
+import LightColorScheme
+import MoMoShapes
+import MoMoTopBar
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -36,9 +41,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MaterialTheme(typography = MoMoTypography) {
+            MoMoAppTheme {                        // our custom theme (Part B)
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    MoMoCalcScreen()
+                    Scaffold(
+                        topBar = { MoMoTopBar() }
+                    ) { innerPadding ->
+                        MoMoCalcScreen(
+                            modifier = Modifier.padding(innerPadding)
+                        )
+                    }
                 }
             }
 
@@ -102,7 +113,7 @@ fun HoistedAmountInput(
 }
 
 @Composable
-fun MoMoCalcScreen() {
+fun MoMoCalcScreen(modifier: Modifier = Modifier) {
     var amountInput by remember { mutableStateOf("") }
 
     val numericAmount = amountInput.toDoubleOrNull()
@@ -136,12 +147,41 @@ fun MoMoCalcScreen() {
             dimensionResource(R.dimen.spacing_medium)
         ))
 
-        Text(
+        /*Text(
             text = stringResource(R.string.fee_label, formattedFee),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
-        )
+        )*/
+
+        Surface(
+            shape = MaterialTheme.shapes.medium,       // 16dp rounded corners
+            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(R.string.fee_label, formattedFee),
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+
     }
+}
+
+@Composable
+fun MoMoAppTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(), // auto-detect by default
+    content: @Composable () -> Unit
+) {
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography  = MoMoTypography,
+        shapes      = MoMoShapes,
+        content     = content
+    )
 }
 
 @Preview(showBackground = true)
@@ -150,6 +190,40 @@ fun MoMoCalcPreview() {
     MaterialTheme { MoMoCalcScreen() }
 }
 
+@Preview(name = "Light Mode", showBackground = true)
+@Composable
+fun PreviewLight() {
+    MoMoAppTheme(darkTheme = false) {
+        MoMoCalcScreen()
+    }
+}
+
+@Preview(
+    name = "Dark Mode",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun PreviewDark() {
+    MoMoAppTheme(darkTheme = true) {
+        MoMoCalcScreen()
+    }
+}
+
+@Preview(name = "Fee Card – Light", showBackground = true)
+@Preview(
+    name = "Fee Card – Dark",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun PreviewFeeCard() {
+    MoMoAppTheme {
+        Surface(modifier = Modifier.padding(16.dp)) {
+            MoMoCalcScreen()
+        }
+    }
+}
 
 
 /*@Preview(showBackground = true)
